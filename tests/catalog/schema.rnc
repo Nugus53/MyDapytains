@@ -1,0 +1,129 @@
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+namespace ns1 = "http://purl.org/dc/terms/"
+
+start = resource | collection
+identifier-and-path =
+  
+  ## Identifier of the Collection or Resource
+  attribute identifier { xsd:anyURI },
+  
+  ## Path to the relevant Collection or Resource
+  attribute path { xsd:anyURI }?
+\parent =
+  [
+    a:documentation [
+      xml:lang = "eng"
+      "Identifier of the parent if required by a parent\x{a}" ~
+      "                  collection"
+    ]
+  ]
+  element parent { xsd:anyURI }?
+baseDetails =
+  
+  ## Title / name of a Collection or Resource
+  element title { xsd:string },
+  
+  ## Description of a Collection or Resource
+  element description { xsd:string }?
+dublinCore =
+  element dublinCore {
+    
+    ## Something
+    element ns1:abstract
+            | ns1:accessRights
+            | ns1:accrualMethod
+            | ns1:accrualPeriodicity
+            | ns1:accrualPolicy
+            | ns1:alternative
+            | ns1:audience
+            | ns1:available
+            | ns1:bibliographicCitation
+            | ns1:conformsTo
+            | ns1:contributor
+            | ns1:coverage
+            | ns1:created
+            | ns1:creator
+            | ns1:date
+            | ns1:dateAccepted
+            | ns1:dateCopyrighted
+            | ns1:dateSubmitted
+            | ns1:description
+            | ns1:educationLevel
+            | ns1:extent
+            | ns1:format
+            | ns1:hasFormat
+            | ns1:hasPart
+            | ns1:hasVersion
+            | ns1:identifier
+            | ns1:instructionalMethod
+            | ns1:isFormatOf
+            | ns1:isPartOf
+            | ns1:isReferencedBy
+            | ns1:isReplacedBy
+            | ns1:isRequiredBy
+            | ns1:issued
+            | ns1:isVersionOf
+            | ns1:language
+            | ns1:license
+            | ns1:mediator
+            | ns1:medium
+            | ns1:modified
+            | ns1:provenance
+            | ns1:publisher
+            | ns1:references
+            | ns1:relation
+            | ns1:replaces
+            | ns1:requires
+            | ns1:rights
+            | ns1:rightsHolder
+            | ns1:source
+            | ns1:spatial
+            | ns1:subject
+            | ns1:tableOfContents
+            | ns1:temporal
+            | ns1:title
+            | ns1:type
+            | ns1:valid {
+      attribute xml:lang { xsd:language }?,
+      xsd:string
+    }*
+  }
+extension =
+  
+  ## Structured metadata contains any other optional metadata that are not part of
+  ##                 DublinCore Terms namespace
+  element extensions {
+    element * - ns1:* {
+      attribute xml:lang { xsd:language }?,
+      text
+    }*
+  }
+
+## Children member of a collection or ressource
+members =
+  element members {
+    (collection
+     | resource
+     | 
+       ## Relative link to a secondary collection file
+       element collection | resource { identifier-and-path })+
+  }
+  
+mediatypeChild =
+  element mediatypeChild {
+    element item { 
+      attribute type { xsd:string },
+      attribute href { xsd:anyURI },
+      attribute mediatype { xsd:string }
+    }*
+  }
+collection-pattern =
+  identifier-and-path,
+  \parent,
+  baseDetails,
+  mediatypeChild?,
+  dublinCore?,
+  extension?,
+  members?
+resource = element resource { collection-pattern }
+collection = element collection { collection-pattern }

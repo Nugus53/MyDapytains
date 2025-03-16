@@ -233,7 +233,7 @@ class Document:
         self.citeStructure: Dict[Optional[str], CiteStructureParser] = {}
 
         default = None
-        for refsDecl in self.xpath_processor.evaluate("/TEI/teiHeader/encodingDesc/refsDecl[./citeStructure]"):
+        for refsDecl in self.xpath_processor.evaluate("/TEI/teiHeader/refsDecl[./citeStructure]"):
             struct = CiteStructureParser(refsDecl)
 
             self.citeStructure[refsDecl.get_attribute_value("n") or "default"] = struct

@@ -1,13 +1,11 @@
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
     <teiHeader>
-        <encodingDesc>
-            <refsDecl n="nums" default="true">
-                <citeStructure unit="book" match="//body/div" use="@n">
-                        <citeData use="./head/text()" property="http://purl.org/dc/terms/title"/>
-                        <citeData use=".//persName[1]/text()" property="http://purl.org/dc/terms/creator"/>
-                </citeStructure>
-            </refsDecl>
-        </encodingDesc>
+        <refsDecl n="nums" default="true">
+            <citeStructure unit="book" match="//body/div" use="@n">
+                    <citeData use="./head/text()" property="http://purl.org/dc/terms/title"/>
+                    <citeData use=".//persName[1]/text()" property="http://purl.org/dc/terms/creator"/>
+            </citeStructure>
+        </refsDecl>
     </teiHeader>
     <text>
         <body>

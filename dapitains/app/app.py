@@ -15,7 +15,7 @@ from dapitains.tei.document import Document
 from dapitains.errors import InvalidRangeOrder
 from dapitains.app.database import db, Collection, Navigation
 from dapitains.app.navigation import get_nav, get_member_by_path
-
+from dapitains.app.render import get_all_transform,Xslt
 
 def inject_json(collection: Collection, templates) -> Dict:
     if collection.resource:
@@ -81,7 +81,7 @@ def collection_view(
     }, ), mimetype="application/ld+json", status=200)
 
 
-def document_view(resource, ref, start, end, tree) -> Response:
+def document_view(resource, ref, start, end, tree, mediatype) -> Response:
     if not resource:
         return msg_4xx("Resource parameter was not provided")
 
@@ -110,11 +110,33 @@ def document_view(resource, ref, start, end, tree) -> Response:
     if ref and ref not in paths:
         return msg_4xx(f"Unknown reference {ref} in the requested tree.", code=404)
 
+    try :
+        transform=get_all_transform(resource)
+    except:
+        transform=None
+
+    try :
+        mediatype=mediatype.replace("'","")
+    except:
+        mediatype=None
     if not ref and not start:
         with open(collection.filepath) as f:
             content = f.read()
-        return Response(content, mimetype="application/xml")
+        if mediatype ==None :
+        
+            return Response(content, mimetype="application/xml")
+        elif mediatype not in transform.keys() :
+            
+            return msg_4xx(f"Unknown transform process`{mediatype}` for `{resource}`")
+        else :
+            
+            if transform[mediatype]['method'] == 'text/xsl':
+                return Response(Xslt(resource,transform[mediatype]['href']), mimetype=mediatype)
+            else :
+                return msg_4xx(f"Unknown`{transform[mediatype]['method']}` method process ")
+            
 
+    
     doc = Document(collection.filepath)
     return Response(
         ET.tostring(doc.get_passage(
@@ -256,7 +278,20 @@ def create_app(
         start = request.args.get("start")
         end = request.args.get("end")
         tree = request.args.get("tree")
-        return document_view(resource, ref, start, end, tree)
+        mediatype= request.args.get("mediatype")
+        return document_view(resource, ref, start, end, tree,mediatype)
+    
+    @app.route("/dev/")
+    def dev_route():
+        
+        return get_all_transform('https://example.org/resource1')
+    
+    @app.route("/devTr/")
+    def dev_roudte():
+        
+        return Xslt('https://example.org/resource1','file:///home/nuguet/Documents/gitlab/MyDapytains/test.xsl')
+
+
 
     return app, db
 

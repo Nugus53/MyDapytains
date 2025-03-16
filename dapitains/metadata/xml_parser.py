@@ -3,7 +3,7 @@ import re
 from typing import Dict, Optional, List, Tuple, Any
 from dataclasses import dataclass, field
 import lxml.etree as ET
-from dapitains.metadata.classes import DublinCore, Extension, Collection
+from dapitains.metadata.classes import DublinCore, Extension, Collection,MediaType
 
 
 __all__ = ["Catalog", "parse"]
@@ -57,6 +57,7 @@ def _parse_metadata(xml: ET.Element) -> Tuple[Dict[str, Any], List[str]]:
     return obj, parents
 
 
+
 def _parse_collection(xml: ET.Element, basedir: str, tree: Catalog) -> Collection:
     """ Parse a Collection or Resource object
 
@@ -71,6 +72,11 @@ def _parse_collection(xml: ET.Element, basedir: str, tree: Catalog) -> Collectio
     tree.objects[obj.identifier] = obj
     if xml.attrib.get("filepath") and obj.resource:
         obj.filepath = os.path.normpath(os.path.join(basedir, xml.attrib["filepath"]))
+    
+    for member in xml.xpath("./mediatypeChild/*"):
+        print(type(member.xpath("./@type")[0]))
+        obj.mediatype.append(MediaType(str(member.xpath("./@type")[0]),str(member.xpath("./@mediatype")[0]),str(member.xpath("./@href")[0])))
+        
     for member in xml.xpath("./members/*"):
         if member.xpath("./title"):
             child = _parse_collection(member, basedir, tree)

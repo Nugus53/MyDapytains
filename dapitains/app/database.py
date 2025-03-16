@@ -59,6 +59,7 @@ class Collection(db.Model):
     dublin_core = db.Column(JSONEncoded, nullable=True)
     extensions = db.Column(JSONEncoded, nullable=True)
     citeStructure = db.Column(JSONEncoded, nullable=True)
+    mediatype = db.Column(JSONEncoded, nullable=True)
     default_tree = db.Column(db.String, nullable=True)
 
     # One-to-one relationship with Navigation
@@ -127,6 +128,12 @@ class Collection(db.Model):
                 extensions[exte.term].append({"lang": exte.language, "value": exte.value})
             else:
                 extensions[exte.term].append(exte.value)
+        
+        mediatype = defaultdict(list)
+        for exte in obj.mediatype:
+            mediatype[exte.mediatype]={"method": exte.method, "href": exte.href}
+           
+        
 
         obj = cls(
             identifier=obj.identifier,
@@ -134,6 +141,7 @@ class Collection(db.Model):
             description=obj.description,
             resource=obj.resource,
             filepath=obj.filepath,
+            mediatype=mediatype,
             # We are dumping because it's not read or accessible
             dublin_core=dublin_core,  #[dub.json() for dub in obj.dublin_core],
             extensions=extensions,  # [ext.json() for ext in obj.extension]

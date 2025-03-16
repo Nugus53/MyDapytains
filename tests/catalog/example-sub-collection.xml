@@ -5,6 +5,7 @@
         <subject xmlns="http://purl.org/dc/terms/">History</subject>
         <date xmlns="http://purl.org/dc/terms/">2023-08-24</date>
     </dublinCore>
+   
     <members>
         <resource identifier="https://example.org/resource1" filepath="../tei/multiple_tree.xml">
             <title>Historical Document</title>

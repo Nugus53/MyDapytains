@@ -26,21 +26,37 @@ class Extension(DublinCore):
         else:
             return {"property": self.term, "value": self.value}
 
+@dataclass
+class MediaType():
+    method: str
+    mediatype: str   
+    href: str
+    
 
+    def json(self):
+        try:
+            return {"method": self.method, "href": self.href, "mediatype": self.mediatype}
+        except:
+            return {}
+        
 @dataclass
 class Collection:
     identifier: str
     title: str
     description: Optional[str] = None
     dublin_core: List[DublinCore] = field(default_factory=list)
+    mediatype: List[MediaType] = field(default_factory=list)
     extensions: List[Extension] = field(default_factory=list)
     resource: bool = False
     filepath: Optional[str] = None
+    
 
     def json(self):
+        print(self.mediatype)
         return {
             "identifier": self.identifier,
             "title": self.title,
+            "mediatype":self.dublin_core,
             "description": self.description,
             "dublin_core": self.dublin_core,
             "extension": self.extensions,
