@@ -15,7 +15,7 @@ from dapitains.tei.document import Document
 from dapitains.errors import InvalidRangeOrder
 from dapitains.app.database import db, Collection, Navigation
 from dapitains.app.navigation import get_nav, get_member_by_path
-from dapitains.app.render import get_all_transform,Xslt
+from dapitains.app.render import get_all_transform,Xslt,Xquery,Python
 
 def inject_json(collection: Collection, templates) -> Dict:
     if collection.resource:
@@ -132,6 +132,10 @@ def document_view(resource, ref, start, end, tree, mediatype) -> Response:
             
             if transform[mediatype]['method'] == 'text/xsl':
                 return Response(Xslt(resource,transform[mediatype]['href']), mimetype=mediatype)
+            if transform[mediatype]['method'] == 'text/xq':
+                return Response(Xquery(resource,transform[mediatype]['href']), mimetype=mediatype)
+            if transform[mediatype]['method'] == 'text/py':
+                return Response(Python(resource,transform[mediatype]['href']), mimetype=mediatype)
             else :
                 return msg_4xx(f"Unknown`{transform[mediatype]['method']}` method process ")
             

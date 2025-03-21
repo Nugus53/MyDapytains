@@ -32,3 +32,16 @@ def get_xpath_proc(elem: saxonlib.PyXdmNode) -> saxonlib.PyXPathProcessor:
     xpath.declare_namespace("", "http://www.tei-c.org/ns/1.0")
     xpath.set_context(xdm_item=elem)
     return xpath
+
+
+
+def get_xquery_proc(elem: saxonlib.PyXdmNode) -> saxonlib.PyXPathProcessor:
+    """ Builds an XPath processor around a given element, with the default TEI namespace
+
+    :param elem: An XML node, root or not
+    :return: XPathProccesor
+    """
+    xquery = PROCESSOR.new_xquery_processor()
+    xquery.declare_namespace("", "http://www.tei-c.org/ns/1.0")
+    xquery.set_context(xdm_item=elem)
+    return xquery

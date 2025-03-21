@@ -2,13 +2,14 @@
 <?oxygen RNGSchema="schema.rng" type="xml" ?>
 <collection identifier="https://foo.bar/default">
     <title>A collection</title>
-    <mediatypeChild>
-        <item type="text/xsl" href="/home/nuguet/Documents/gitlab/MyDapytains/tests/xsl/test.xsl" mediatype='text/html'/>
-    </mediatypeChild>
+
     <dublinCore>
         <abstract xmlns="http://purl.org/dc/terms/">This is a perfect example of an absract.</abstract>
         <abstract xmlns="http://purl.org/dc/terms/" xml:lang="fr">Et je peux traduire en français</abstract>
     </dublinCore>
+        <mediatypeChild>
+        <item type="text/py" href="/home/nuguet/Documents/gitlab/MyDapytains-1/tests/py/2pdf.py" mediatype='application/pdf'/>
+    </mediatypeChild>
     <members>
         <collection filepath="./example-sub-collection.xml"/>
         <resource identifier="https://foo.bar/text" filepath="../tei/base_tei.xml">

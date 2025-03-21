@@ -1,7 +1,10 @@
-from dapitains.constants import PROCESSOR,get_xpath_proc, saxonlib
+from dapitains.constants import PROCESSOR,get_xquery_proc,get_xpath_proc, saxonlib
 from dapitains.app.database import db, Collection, Navigation
 import re
- 
+import importlib.util
+import os
+
+
 # Note 
 # ajouter la récupération du chemin absolue du fichier de Transformation
 # Pour des question de sécuriter 
@@ -110,5 +113,30 @@ def Xslt(identifier,render):
 
 # ajouter d'autres outils de transformation :
 #def ODD():
-#def Xquery():
-#def Python():
+def Xquery(identifier,render):
+    coll = Collection.query.where(Collection.identifier == identifier and Collection.resource==True).first()
+    xml=PROCESSOR.parse_xml(xml_file_name=coll.filepath)
+    test= get_xquery_proc(elem=xml)
+    test.set_query_file(render)
+    print(test.run_query_to_string(query_file=render))
+    return test.run_query_to_string(query_file=render)
+
+def Python(identifier,render):
+    coll = Collection.query.where(Collection.identifier == identifier and Collection.resource==True).first()
+    xml=PROCESSOR.parse_xml(xml_file_name=coll.filepath)
+
+    module_name = os.path.splitext(os.path.basename(render))[0]
+    
+    spec = importlib.util.spec_from_file_location(module_name, render)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    
+    if not hasattr(module, "Handler"):
+        raise AttributeError(f"La fonction 'Handler' n'existe pas dans '{file_path}'.")
+
+    # Récupérer la fonction et l'exécuter avec input_data
+    function = getattr(module, 'Handler')
+    return function(xml)
+
+
+

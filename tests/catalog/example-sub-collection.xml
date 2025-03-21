@@ -5,7 +5,10 @@
         <subject xmlns="http://purl.org/dc/terms/">History</subject>
         <date xmlns="http://purl.org/dc/terms/">2023-08-24</date>
     </dublinCore>
-   
+       <mediatypeChild>
+        
+        <item type="text/xq" href="/home/nuguet/Documents/gitlab/MyDapytains/tests/xq/test.xq" mediatype='text'/>
+    </mediatypeChild>
     <members>
         <resource identifier="https://example.org/resource1" filepath="../tei/multiple_tree.xml">
             <title>Historical Document</title>
