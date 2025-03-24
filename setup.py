@@ -6,14 +6,14 @@ def read_requirements():
         return f.read().splitlines()
 
 setup(
-    name="MyDapytains",
-    version="0.0.1",
+    name="dapytains",
+    version="0.0.1a",
     author="Thibault Clérice",
     author_email="thibault.clerice@inria.fr",
-    description="A brief description of MyDapytains",
+    description="A brief description of dapytains",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/Capitains/MyDapytains",
+    url="https://github.com/distributed-text-services/MyDapytains",
     packages=find_packages(),
     install_requires=read_requirements(),
     classifiers=[
