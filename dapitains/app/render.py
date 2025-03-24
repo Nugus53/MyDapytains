@@ -3,15 +3,69 @@ from dapitains.app.database import db, Collection, Navigation
 import re
 import importlib.util
 import os
+import json
+try:
+    import uritemplate
+    from flask import Flask, request, Response
+    from flask_sqlalchemy import SQLAlchemy
+    import click
+except ImportError:
+    print("This part of the package can only be imported with the web requirements.")
+    raise
 
 
-# Note 
-# ajouter la récupération du chemin absolue du fichier de Transformation
-# Pour des question de sécuriter 
-# autoriser ou non les transformation venant d'une url
-# autoriser uniquement venant de certains HOST
-# external_url=True
+from urllib.parse import urlparse
 
+def msg_4xx(string, code=404) -> Response:
+    return Response(json.dumps({"message": string}), status=code, mimetype="application/json")
+
+def is_url(path):
+    result = urlparse(path)
+    return all([result.scheme, result.netloc])
+
+def check_url(path, autoriser_lien_externe=True, liste_hotes=None):
+    if is_url(path):
+        if autoriser_lien_externe:
+            if liste_hotes:
+                host = urlparse(path).netloc
+                if host in liste_hotes: 
+                    return True
+                else:
+                    return False 
+            else:
+                return True 
+        else:
+            return True
+    else:
+        return True 
+    
+def render(identifier,content,mediatype):
+    try :
+        transform=get_all_transform(identifier)
+    except:
+        transform=None
+
+    try :
+        mediatype=mediatype.replace("'","")
+    except:
+        mediatype=None
+    
+    if mediatype ==None :
+        return Response(content, mimetype="application/xml")
+    elif mediatype not in transform.keys() :
+            
+            return msg_4xx(f"Unknown transform process`{mediatype}` for `{identifier}`")
+    else :
+            if transform[mediatype]['method'] == 'text/xsl':
+                return Response(Xslt(content,transform[mediatype]['href']), mimetype=mediatype)
+            if transform[mediatype]['method'] == 'text/xq':
+                return Response(Xquery(content,transform[mediatype]['href']), mimetype=mediatype)
+            if transform[mediatype]['method'] == 'text/py':
+                return Response(Python(content,transform[mediatype]['href']), mimetype=mediatype)
+            else :
+                return msg_4xx(f"Unknown`{transform[mediatype]['method']}` method process ")
+
+        
 def get_all_transform(identifier):
     rslt={}
     for list in [get_col_transform(identifier,True),get_doc_transform(identifier)]:
@@ -23,7 +77,7 @@ def merge(listSource,ListAdd,method):
     for key in ListAdd.keys():
         if key in listSource.keys():
             if method=='use-first':
-                print('test')
+                pass
             if method=='use-last':
                 listSource[key]=ListAdd[key]
             if method=='rejet':
@@ -100,9 +154,8 @@ def get_doc_transform(identifier):
 
 
 
-def Xslt(identifier,render):
-    coll = Collection.query.where(Collection.identifier == identifier and Collection.resource==True).first()
-    xml=PROCESSOR.parse_xml(xml_file_name=coll.filepath)
+def Xslt(content,render):
+    xml=PROCESSOR.parse_xml(xml_text=content)
     test= get_xpath_proc(elem=xml).evaluate(f'''
     transform(  map {{
     "stylesheet-location" : "{render}",
@@ -113,17 +166,14 @@ def Xslt(identifier,render):
 
 # ajouter d'autres outils de transformation :
 #def ODD():
-def Xquery(identifier,render):
-    coll = Collection.query.where(Collection.identifier == identifier and Collection.resource==True).first()
-    xml=PROCESSOR.parse_xml(xml_file_name=coll.filepath)
+def Xquery(content,render):
+    xml=PROCESSOR.parse_xml(xml_text=content)
     test= get_xquery_proc(elem=xml)
     test.set_query_file(render)
-    print(test.run_query_to_string(query_file=render))
     return test.run_query_to_string(query_file=render)
 
-def Python(identifier,render):
-    coll = Collection.query.where(Collection.identifier == identifier and Collection.resource==True).first()
-    xml=PROCESSOR.parse_xml(xml_file_name=coll.filepath)
+def Python(content,render):
+    xml=PROCESSOR.parse_xml(xml_text=content)
 
     module_name = os.path.splitext(os.path.basename(render))[0]
     
@@ -132,9 +182,8 @@ def Python(identifier,render):
     spec.loader.exec_module(module)
     
     if not hasattr(module, "Handler"):
-        raise AttributeError(f"La fonction 'Handler' n'existe pas dans '{file_path}'.")
+        raise AttributeError(f"La fonction 'Handler' n'existe pas dans '{render}'.")
 
-    # Récupérer la fonction et l'exécuter avec input_data
     function = getattr(module, 'Handler')
     return function(xml)
 

@@ -74,8 +74,8 @@ def _parse_collection(xml: ET.Element, basedir: str, tree: Catalog) -> Collectio
         obj.filepath = os.path.normpath(os.path.join(basedir, xml.attrib["filepath"]))
     
     for member in xml.xpath("./mediatypeChild/*"):
-        print(type(member.xpath("./@type")[0]))
-        obj.mediatype.append(MediaType(str(member.xpath("./@type")[0]),str(member.xpath("./@mediatype")[0]),str(member.xpath("./@href")[0])))
+        
+        obj.mediatype.append(MediaType(str(member.xpath("./@type")[0]),str(member.xpath("./@mediatype")[0]),os.path.normpath(os.path.join(basedir,str(member.xpath("./@href")[0])))))
         
     for member in xml.xpath("./members/*"):
         if member.xpath("./title"):

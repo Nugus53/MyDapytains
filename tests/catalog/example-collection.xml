@@ -7,8 +7,10 @@
         <abstract xmlns="http://purl.org/dc/terms/">This is a perfect example of an absract.</abstract>
         <abstract xmlns="http://purl.org/dc/terms/" xml:lang="fr">Et je peux traduire en français</abstract>
     </dublinCore>
-        <mediatypeChild>
-        <item type="text/py" href="/home/nuguet/Documents/gitlab/MyDapytains-1/tests/py/2pdf.py" mediatype='application/pdf'/>
+    <mediatypeChild>
+        <item type="text/py" href="../py/2pdf.py" mediatype='application/pdf'/>
+        <item type="text/xq" href="../xq/test.xq" mediatype='text/plain'/>
+        <item type="text/xsl" href="../xsl/test.xsl" mediatype='text/html'/>
     </mediatypeChild>
     <members>
         <collection filepath="./example-sub-collection.xml"/>
